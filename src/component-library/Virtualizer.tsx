@@ -8,11 +8,8 @@ const checkNumberProp = (prop: any, fallback: number): number => {
   }
 };
 
-const checkNumberOrFunctionProp = (
-  prop: any,
-  fallback: number
-): number | ((index: number) => number) => {
-  if (typeof prop === "number" || typeof prop === "function") {
+const checkNumberOrFunctionProp = (prop: any, fallback: number): number => {
+  if (typeof prop === "number") {
     return prop;
   } else {
     return fallback;
@@ -37,8 +34,8 @@ const checkFunctionProp = (
 export const Virtualizer = React.memo<{
   numRows: number;
   numColumns: number;
-  rowHeight: number | ((index: number) => number);
-  columnWidth: number | ((index: number) => number);
+  rowHeight: number;
+  columnWidth: number;
   containerHeight: number;
   containerWidth: number;
   children: (info: {
@@ -55,18 +52,8 @@ export const Virtualizer = React.memo<{
   const containerWidth = checkNumberProp(props.containerWidth, 0);
   const children = checkFunctionProp(props.children, () => null);
 
-  const totalHeight =
-    typeof rowHeight === "number"
-      ? numRows * rowHeight
-      : new Array(numRows)
-          .fill(null)
-          .reduce<number>((acc, _, index) => acc + rowHeight(index), 0);
-  const totalWidth =
-    typeof columnWidth === "number"
-      ? numColumns * columnWidth
-      : new Array(numColumns)
-          .fill(null)
-          .reduce<number>((acc, _, index) => acc + columnWidth(index), 0);
+  const totalHeight = numRows * rowHeight;
+  const totalWidth = numColumns * columnWidth;
 
   const [firstVisibleRow, setFirstVisibleRow] = useState(0);
   const [lastVisibleRow, setLastVisibleRow] = useState(0);
@@ -113,32 +100,10 @@ export const Virtualizer = React.memo<{
                 const columnIndex = firstVisibleColumn + x;
                 const style: React.CSSProperties = {
                   position: "fixed",
-                  top:
-                    typeof rowHeight === "number"
-                      ? rowIndex * rowHeight
-                      : new Array(rowIndex)
-                          .fill(null)
-                          .reduce<number>(
-                            (acc, cur, index) => acc + rowHeight(index),
-                            0
-                          ),
-                  left:
-                    typeof columnWidth === "number"
-                      ? columnIndex * columnWidth
-                      : new Array(columnIndex)
-                          .fill(null)
-                          .reduce<number>(
-                            (acc, cur, index) => acc + columnWidth(index),
-                            0
-                          ),
-                  height:
-                    typeof rowHeight === "number"
-                      ? rowHeight
-                      : rowHeight(rowIndex),
-                  width:
-                    typeof columnWidth === "number"
-                      ? columnWidth
-                      : columnWidth(columnIndex),
+                  top: rowIndex * rowHeight,
+                  left: columnIndex * columnWidth,
+                  height: rowHeight,
+                  width: columnWidth,
                 };
 
                 return children({ rowIndex, columnIndex, style });
