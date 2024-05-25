@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-shadow */
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface VirtualizerProps {
   numRows: number;
@@ -23,23 +24,88 @@ const VirtualizerComponent = ({
   containerWidth,
   children,
 }: VirtualizerProps) => {
-  console.log("Render")
+  const BUFFER = 10;
   const totalHeight = numRows * rowHeight;
   const totalWidth = numColumns * columnWidth;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const [firstVisibleRow, setFirstVisibleRow] = useState(0);
-  const [lastVisibleRow, setLastVisibleRow] = useState(0);
+  const [lastVisibleRow, setLastVisibleRow] = useState(
+    Math.min(numRows - 1, Math.ceil(containerHeight / rowHeight) + BUFFER - 1)
+  );
   const [firstVisibleColumn, setFirstVisibleColumn] = useState(0);
-  const [lastVisibleColumn, setLastVisibleColumn] = useState(0);
+  const [lastVisibleColumn, setLastVisibleColumn] = useState(
+    Math.min(
+      numColumns - 1,
+      Math.ceil(containerWidth / columnWidth) + BUFFER - 1
+    )
+  );
+
+  const calculateVisibleItems = (
+    scrollTop: number,
+    scrollLeft: number,
+    containerHeight: number,
+    containerWidth: number,
+    rowHeight: number,
+    columnWidth: number,
+    numRows: number,
+    numColumns: number
+  ) => {
+    const firstVisibleRow = Math.max(
+      0,
+      Math.floor(scrollTop / rowHeight) - BUFFER
+    );
+    const firstVisibleColumn = Math.max(
+      0,
+      Math.floor(scrollLeft / columnWidth) - BUFFER
+    );
+    const lastVisibleRow = Math.min(
+      numRows - 1,
+      firstVisibleRow + Math.ceil(containerHeight / rowHeight) + 2 * BUFFER - 1
+    );
+    const lastVisibleColumn = Math.min(
+      numColumns - 1,
+      firstVisibleColumn +
+        Math.ceil(containerWidth / columnWidth) +
+        2 * BUFFER -
+        1
+    );
+
+    return {
+      firstVisibleRow,
+      lastVisibleRow,
+      firstVisibleColumn,
+      lastVisibleColumn,
+    };
+  };
 
   const updateVisibleItems = useCallback(() => {
-    const visibleRows = Math.ceil(containerHeight / rowHeight);
-    const visibleColumns = Math.ceil(containerWidth / columnWidth);
+    if (!containerRef.current) {
+      return;
+    }
+    const { scrollTop, scrollLeft } = containerRef.current;
 
-    setLastVisibleRow(Math.min(numRows - 1, firstVisibleRow + visibleRows - 1));
-    setLastVisibleColumn(
-      Math.min(numColumns - 1, firstVisibleColumn + visibleColumns - 1)
+    const {
+      firstVisibleRow,
+      lastVisibleRow,
+      firstVisibleColumn,
+      lastVisibleColumn,
+    } = calculateVisibleItems(
+      scrollTop,
+      scrollLeft,
+      containerHeight,
+      containerWidth,
+      rowHeight,
+      columnWidth,
+      numRows,
+      numColumns
     );
+
+    setFirstVisibleRow(firstVisibleRow);
+    setLastVisibleRow(lastVisibleRow);
+    setFirstVisibleColumn(firstVisibleColumn);
+    setLastVisibleColumn(lastVisibleColumn);
   }, [
     containerHeight,
     containerWidth,
@@ -47,8 +113,6 @@ const VirtualizerComponent = ({
     columnWidth,
     numRows,
     numColumns,
-    firstVisibleRow,
-    firstVisibleColumn,
   ]);
 
   useEffect(() => {
@@ -58,23 +122,27 @@ const VirtualizerComponent = ({
   const onScroll = useCallback<React.UIEventHandler<HTMLDivElement>>(
     ({ currentTarget }) => {
       const { scrollTop, scrollLeft } = currentTarget;
-      const newFirstVisibleRow = Math.floor(scrollTop / rowHeight);
-      const newFirstVisibleColumn = Math.floor(scrollLeft / columnWidth);
 
-      setFirstVisibleRow(newFirstVisibleRow);
-      setLastVisibleRow(
-        Math.min(
-          numRows - 1,
-          newFirstVisibleRow + Math.ceil(containerHeight / rowHeight) - 1
-        )
+      const {
+        firstVisibleRow,
+        lastVisibleRow,
+        firstVisibleColumn,
+        lastVisibleColumn,
+      } = calculateVisibleItems(
+        scrollTop,
+        scrollLeft,
+        containerHeight,
+        containerWidth,
+        rowHeight,
+        columnWidth,
+        numRows,
+        numColumns
       );
-      setFirstVisibleColumn(newFirstVisibleColumn);
-      setLastVisibleColumn(
-        Math.min(
-          numColumns - 1,
-          newFirstVisibleColumn + Math.ceil(containerWidth / columnWidth) - 1
-        )
-      );
+
+      setFirstVisibleRow(firstVisibleRow);
+      setLastVisibleRow(lastVisibleRow);
+      setFirstVisibleColumn(firstVisibleColumn);
+      setLastVisibleColumn(lastVisibleColumn);
     },
     [
       containerHeight,
@@ -88,6 +156,7 @@ const VirtualizerComponent = ({
 
   return (
     <div
+      ref={containerRef}
       style={{
         height: containerHeight,
         width: containerWidth,
