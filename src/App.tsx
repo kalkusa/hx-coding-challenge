@@ -16,8 +16,8 @@ const Container = styled.div`
 `;
 
 const App = () => {
-  const [numRowsInput, numRows, onChangeNumRows] = useNumberParameter(5);
-  const [numColsInput, numCols, onChangeNumCols] = useNumberParameter(5);
+  const [numRowsInput, numRows, onChangeNumRows] = useNumberParameter(50);
+  const [numColsInput, numCols, onChangeNumCols] = useNumberParameter(50);
   const [rowHeightInput, rowHeight, onChangeRowHeight] = useNumberParameter(50);
   const [columnWidthInput, columnWidth, onChangeColumnWidth] =
     useNumberParameter(100);
