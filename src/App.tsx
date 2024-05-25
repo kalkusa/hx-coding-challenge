@@ -56,7 +56,7 @@ const App = () => {
             key={`${rowIndex}-${columnIndex}`}
             style={style}
             backgroundColor={
-              (rowIndex + (columnIndex % 2)) % 2 === 0 ? "aliceblue" : "white"
+              (rowIndex + (columnIndex % 2)) % 2 === 0 ? "lightgray" : "white"
             }
           >
             <p>

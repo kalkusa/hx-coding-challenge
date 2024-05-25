@@ -13,4 +13,5 @@ export const Cell = styled(
   justify-content: center;
   text-align: center;
   background-color: ${({ backgroundColor }) => backgroundColor};
+  color: black;
 `;
