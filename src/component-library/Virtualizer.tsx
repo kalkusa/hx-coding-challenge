@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 interface VirtualizerProps {
   numRows: number;
@@ -30,6 +30,26 @@ const VirtualizerComponent = ({
   const [lastVisibleRow, setLastVisibleRow] = useState(0);
   const [firstVisibleColumn, setFirstVisibleColumn] = useState(0);
   const [lastVisibleColumn, setLastVisibleColumn] = useState(0);
+
+  const updateVisibleItems = useCallback(() => {
+    setLastVisibleRow(
+      Math.min(numRows - 1, Math.floor(containerHeight / rowHeight) - 1)
+    );
+    setLastVisibleColumn(
+      Math.min(numColumns - 1, Math.floor(containerWidth / columnWidth) - 1)
+    );
+  }, [
+    containerHeight,
+    containerWidth,
+    rowHeight,
+    columnWidth,
+    numRows,
+    numColumns,
+  ]);
+
+  useEffect(() => {
+    updateVisibleItems();
+  }, [updateVisibleItems]);
 
   const onScroll = useCallback<React.UIEventHandler<HTMLDivElement>>(
     ({ currentTarget }) => {
