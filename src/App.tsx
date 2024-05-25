@@ -1,8 +1,7 @@
-import React from "react";
-
 import styled from "styled-components";
 
 import { Virtualizer } from "./component-library";
+import { Cell } from "./component-library/Cell";
 import { VirtualizerParameters } from "./component-library/VirtualizerParameters";
 import { useNumberParameter } from "./hooks/useNumbersParameter";
 
@@ -14,19 +13,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-`;
-
-const Cell = styled(
-  React.forwardRef<
-    HTMLDivElement,
-    React.ComponentProps<"div"> & { backgroundColor: string }
-  >(({ backgroundColor, ...props }, ref) => <div ref={ref} {...props} />)
-)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background-color: ${({ backgroundColor }) => backgroundColor};
 `;
 
 const App = () => {
