@@ -70,7 +70,7 @@ const VirtualizerComponent = ({
                 const rowIndex = firstVisibleRow + y;
                 const columnIndex = firstVisibleColumn + x;
                 const style: React.CSSProperties = {
-                  position: "fixed",
+                  position: "absolute",
                   top: rowIndex * rowHeight,
                   left: columnIndex * columnWidth,
                   height: rowHeight,
