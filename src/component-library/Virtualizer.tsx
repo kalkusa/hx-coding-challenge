@@ -23,6 +23,7 @@ const VirtualizerComponent = ({
   containerWidth,
   children,
 }: VirtualizerProps) => {
+  console.log("Render")
   const totalHeight = numRows * rowHeight;
   const totalWidth = numColumns * columnWidth;
 
@@ -32,11 +33,12 @@ const VirtualizerComponent = ({
   const [lastVisibleColumn, setLastVisibleColumn] = useState(0);
 
   const updateVisibleItems = useCallback(() => {
-    setLastVisibleRow(
-      Math.min(numRows - 1, Math.floor(containerHeight / rowHeight) - 1)
-    );
+    const visibleRows = Math.ceil(containerHeight / rowHeight);
+    const visibleColumns = Math.ceil(containerWidth / columnWidth);
+
+    setLastVisibleRow(Math.min(numRows - 1, firstVisibleRow + visibleRows - 1));
     setLastVisibleColumn(
-      Math.min(numColumns - 1, Math.floor(containerWidth / columnWidth) - 1)
+      Math.min(numColumns - 1, firstVisibleColumn + visibleColumns - 1)
     );
   }, [
     containerHeight,
@@ -45,6 +47,8 @@ const VirtualizerComponent = ({
     columnWidth,
     numRows,
     numColumns,
+    firstVisibleRow,
+    firstVisibleColumn,
   ]);
 
   useEffect(() => {
@@ -54,14 +58,32 @@ const VirtualizerComponent = ({
   const onScroll = useCallback<React.UIEventHandler<HTMLDivElement>>(
     ({ currentTarget }) => {
       const { scrollTop, scrollLeft } = currentTarget;
-      setFirstVisibleRow(Math.floor(scrollTop / rowHeight));
-      setLastVisibleRow(Math.floor((scrollTop + containerHeight) / rowHeight));
-      setFirstVisibleColumn(Math.floor(scrollLeft / columnWidth));
+      const newFirstVisibleRow = Math.floor(scrollTop / rowHeight);
+      const newFirstVisibleColumn = Math.floor(scrollLeft / columnWidth);
+
+      setFirstVisibleRow(newFirstVisibleRow);
+      setLastVisibleRow(
+        Math.min(
+          numRows - 1,
+          newFirstVisibleRow + Math.ceil(containerHeight / rowHeight) - 1
+        )
+      );
+      setFirstVisibleColumn(newFirstVisibleColumn);
       setLastVisibleColumn(
-        Math.floor((scrollLeft + containerWidth) / columnWidth)
+        Math.min(
+          numColumns - 1,
+          newFirstVisibleColumn + Math.ceil(containerWidth / columnWidth) - 1
+        )
       );
     },
-    []
+    [
+      containerHeight,
+      containerWidth,
+      rowHeight,
+      columnWidth,
+      numRows,
+      numColumns,
+    ]
   );
 
   return (
