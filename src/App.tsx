@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 
 import styled from "styled-components";
 
-import { TextField } from "./TextField";
 import { Virtualizer } from "./component-library";
+import { VirtualizerParameters } from "./component-library/VirtualizerParameters";
+import { useNumberParameter } from "./hooks/useNumbersParameter";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -13,13 +14,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-`;
-
-const ParametersContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 8px;
-  margin-bottom: 8px;
 `;
 
 const Cell = styled(
@@ -35,29 +29,6 @@ const Cell = styled(
   background-color: ${({ backgroundColor }) => backgroundColor};
 `;
 
-const useNumberParameter = (
-  initialValue: number
-): [
-  string,
-  number,
-  React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>,
-] => {
-  const [input, setInput] = useState(initialValue.toString());
-  const [param, setParam] = useState(initialValue);
-  const onChangeParam = useCallback<
-    React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
-  >(({ target: { value } }) => {
-    if (/^\d*$/.test(value)) {
-      setInput(value);
-      if (value) {
-        setParam(Number(value));
-      }
-    }
-  }, []);
-
-  return [input, param, onChangeParam];
-};
-
 const App = () => {
   const [numRowsInput, numRows, onChangeNumRows] = useNumberParameter(5);
   const [numColsInput, numCols, onChangeNumCols] = useNumberParameter(5);
@@ -72,38 +43,20 @@ const App = () => {
   return (
     <Container>
       <h1>A Simple Virtualizer</h1>
-      <ParametersContainer>
-        <TextField
-          label="Num Rows"
-          value={numRowsInput}
-          onChange={onChangeNumRows}
-        />
-        <TextField
-          label="Num Columns"
-          value={numColsInput}
-          onChange={onChangeNumCols}
-        />
-        <TextField
-          label="Row Height"
-          value={rowHeightInput}
-          onChange={onChangeRowHeight}
-        />
-        <TextField
-          label="Column Width"
-          value={columnWidthInput}
-          onChange={onChangeColumnWidth}
-        />
-        <TextField
-          label="Container Height"
-          value={containerHeightInput}
-          onChange={onChangeContainerHeight}
-        />
-        <TextField
-          label="Container Width"
-          value={containerWidthInput}
-          onChange={onChangeContainerWidth}
-        />
-      </ParametersContainer>
+      <VirtualizerParameters
+        numRowsInput={numRowsInput}
+        onChangeNumRows={onChangeNumRows}
+        numColsInput={numColsInput}
+        onChangeNumCols={onChangeNumCols}
+        rowHeightInput={rowHeightInput}
+        onChangeRowHeight={onChangeRowHeight}
+        columnWidthInput={columnWidthInput}
+        onChangeColumnWidth={onChangeColumnWidth}
+        containerHeightInput={containerHeightInput}
+        onChangeContainerHeight={onChangeContainerHeight}
+        containerWidthInput={containerWidthInput}
+        onChangeContainerWidth={onChangeContainerWidth}
+      />
       <Virtualizer
         numRows={numRows}
         numColumns={numCols}
